@@ -1,0 +1,669 @@
+openapi: 3.0.1
+info:
+  title: Twitter
+  description: Twitter-unq
+  version: '1.0'
+paths:
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Identify user
+      description: Identifica a un usuario. Tiene que devolver un jwt que referencie al usuario.
+      operationId: postLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: Create user
+      description: Crea un usuario. Tiene que devolver un jwt que referencie al usuario.
+      operationId: postRegister
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftUserDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /user:
+    get:
+      tags:
+        - User
+      summary: Get user
+      description: Trae al usuario que definido por el token JWT del header
+      operationId: getUser
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /user/followingTweets:
+    get:
+      tags:
+        - User
+      summary: Get following tweets
+      description: Trae los tweets de los seguidores del usuario que definido por el token JWT del header
+      operationId: getFollowingTweets
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetsResultDTO'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  
+  /user/usersToFollow:
+    get:
+      tags:
+        - User
+      summary: Get following tweets
+      description: Trae los posibles usuarios que le pueden interesar al usuario definido por el token JWT del header
+      operationId: getUsersToFollow
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsersResultDTO'
+
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  
+  /user/{id}:
+    get:
+      tags:
+        - User
+      summary: Get user with id
+      description: Trae al usuario con el id pasado en el parametro
+      operationId: getUserWithId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /user/{id}/follow:
+    put:
+      tags:
+        - User
+      summary: follow user
+      description: Agrega/elimina como seguidor al usuario id.
+      operationId: toggleFollow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  
+  /search:
+    get:
+      tags:
+        - Tweet
+      summary: Get tweets with text
+      description: Trae tweets que en el content del tweet contengan la palabra buscada
+      operationId: search
+      parameters:
+        - in: query
+          name: text
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetsResultDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /trendingTopics:
+    get:
+      tags:
+        - Tweet
+      summary: Get tweets with text
+      description: Trae los tweets con mas likes
+      operationId: getTrendingTopics
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetsResultDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /tweet:
+    post:
+      tags:
+        - Tweet
+      summary: add tweet
+      description: Agrega un tweet
+      operationId: addNewTweet
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTweetDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /tweet/{id}:
+    get:
+      tags:
+        - Tweet
+      summary: get tweet
+      description: Trae el tweet con el id del parametro
+      operationId: getTweet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /tweet/{id}/like:
+    put:
+      tags:
+        - Tweet
+      summary: Add like to tweet
+      description: Agrega/elimina el like a un tweet
+      operationId: toggleLike
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /tweet/{id}/retweet:
+    post:
+      tags:
+        - Tweet
+      summary: Add retweet
+      description: Agrega un retweet del tweet del parametro
+      operationId: addReTweet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddReTweetDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+  
+  /tweet/{id}/replay:
+    post:
+      tags:
+        - Tweet
+      summary: Add replay
+      description: Agrega un respuesta del tweet del parametro
+      operationId: replyTweet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddReplyTweetDTO'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TweetDTO'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+components:
+  schemas:
+    UserLoginDTO:
+      required:
+        - username
+        - password
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    DraftUserDTO:
+      required:
+        - username
+        - email
+        - password
+        - image
+        - backgroundImage
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        image:
+          type: string
+        backgroundImage:
+          type: string
+    SimpleUserDTO:
+      required:
+          - id
+          - username
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+    UserDTO:
+      required:
+        - id
+        - username
+        - email
+        - image
+        - backgroundImage
+        - followers
+        - following
+        - tweets
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        image:
+          type: string
+        backgroundImage:
+          type: string
+        followers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+        following:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+        tweets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleTweetDTO'
+    TwitterTypeDTO:
+      type: object
+      properties:
+        tweet:
+          $ref: '#/components/schemas/SimpleTweetDTO'
+          nullable: true
+        image:
+          type: string
+          nullable: true
+    SimpleTweetDTO:
+      required:
+        - id
+        - type
+        - user
+        - content
+        - date
+        - repliesAmount
+        - reTweetAmount
+        - likes
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TwitterTypeDTO'
+        user:
+          $ref: '#/components/schemas/SimpleUserDTO'
+        content:
+          type: string
+        date:
+          type: string
+        repliesAmount:
+          type: integer
+          format: int32
+        reTweetAmount:
+          type: integer
+          format: int32
+        likes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+    TweetDTO:
+      required:
+        - id
+        - type
+        - user
+        - content
+        - date
+        - replies
+        - reTweet
+        - likes
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/TwitterTypeDTO'
+        user:
+          $ref: '#/components/schemas/SimpleUserDTO'
+        content:
+          type: string
+        date:
+          type: string
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleTweetDTO'
+        reTweet:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleTweetDTO'
+        likes:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+    TweetsResultDTO:
+      required:
+        - result
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleTweetDTO'
+    UsersResultDTO:
+      required:
+        - result
+      type: object
+      properties:
+        result:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleUserDTO'
+    AddTweetDTO:
+      required:
+        - content
+      type: object
+      properties:
+        content:
+          type: string
+        image:
+          type: string
+          nullable: true
+    AddReTweetDTO:
+      required:
+        - content
+      type: object
+      properties:
+        content:
+          type: string
+    AddReplyTweetDTO:
+      required:
+        - content
+      type: object
+      properties:
+        content:
+          type: string
+        image:
+          type: string
+          nullable: true
+    ErrorDTO:
+      required:
+        - message
+      type: object
+      properties:
+        message:
+          type: string
